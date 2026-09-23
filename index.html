@@ -92,15 +92,6 @@ header{padding:8px 12px 2px}
     <div class="panel">
       <h3>Desteler</h3>
       <div id="decks"></div>
-      <div class="row">
-        <button class="btn ghost small" id="export">Dışa aktar</button>
-      </div>
-      <details class="how">
-        <summary><b>Yeni ders nasıl eklenir?</b></summary>
-        <p>1) <code>anki_kartlari.json</code> ile aynı formatta bir JSON hazırla:<br><code>[{"id":1,"soru":"...","secenekler":{"A":"..."},"cevap":"B","cevap_text":"...","aciklama":"..."}]</code></p>
-        <p>2) Yeni dersler repo sahibi tarafından eklenir (<code>BUILTIN_DECKS</code> / <code>decks.json</code>).</p>
-        <p>3) Haritalı sorularda <code>soru</code> alanına harita notu yazman yeterli.</p>
-      </details>
     </div>
     <div class="panel" style="margin-top:14px">
       <h3>Ayarlar</h3>
@@ -290,7 +281,7 @@ document.getElementById('aboutClose').onclick=closeAbout;
 document.getElementById('aboutBack').onclick=e=>{if(e.target.id==='aboutBack')closeAbout();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAbout();});
 if(!loadUI()) buildOrder();render();};
-document.getElementById('export').onclick=()=>{const blob=new Blob([JSON.stringify(deckObj().cards,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=deckObj().id+'.json';a.click();};
+const _exp=document.getElementById('export'); if(_exp) _exp.onclick=()=>{const blob=new Blob([JSON.stringify(deckObj().cards,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=deckObj().id+'.json';a.click();};
 const _imp=document.getElementById('import'); if(_imp) _imp.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const arr=JSON.parse(r.result);if(!Array.isArray(arr))throw 0;const nd={id:'custom-'+Date.now(),title:f.name.replace('.json',''),desc:'İçe aktarıldı',source:null,cards:arr};customDecks.push(nd);localStorage.setItem('anki-custom-decks',JSON.stringify(customDecks));allDecks=[...BUILTIN_DECKS,...customDecks];cur.deck=nd.id;function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function openAbout(){
   const d=deckObj(); if(!d) return;
