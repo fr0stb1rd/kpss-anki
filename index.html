@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anki Çalışma — KPSS</title>
+<style>
+:root{
+  --bg:#0f172a; --bg2:#1e293b; --card:#ffffff; --ink:#0f172a; --muted:#64748b;
+  --accent:#6366f1; --accent2:#8b5cf6; --good:#16a34a; --hard:#d97706; --again:#dc2626; --easy:#2563eb;
+  --radius:20px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:radial-gradient(1200px 600px at 20% -10%,#312e81 0%,transparent 60%),radial-gradient(1000px 500px at 90% 10%,#0e7490 0%,transparent 55%),var(--bg);color:#e2e8f0;min-height:100dvh;font-size:14px}
+header{max-width:1100px;margin:0 auto;padding:10px 14px 4px;display:flex;gap:10px;align-items:center}
+.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:900;font-size:17px;color:white;box-shadow:0 6px 18px rgba(99,102,241,.4);flex-shrink:0}
+h1{font-size:16px;margin:0}
+.sub{color:#94a3b8;font-size:11px;margin:1px 0 0}
+.wrap{max-width:1100px;margin:0 auto;padding:6px 12px 16px;display:grid;grid-template-columns:230px 1fr;gap:12px;align-items:start}
+.panel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(12px);border-radius:14px;padding:12px}
+.panel h3{margin:2px 0 8px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8}
+.deck{width:100%;text-align:left;background:transparent;border:1px solid rgba(255,255,255,.1);color:#e2e8f0;border-radius:10px;padding:8px 10px;margin-bottom:8px;cursor:pointer;display:block}
+.deck.active{background:linear-gradient(135deg,rgba(99,102,241,.25),rgba(139,92,246,.25));border-color:var(--accent)}
+.deck b{display:block;font-size:13px}.deck span{font-size:11px;color:#94a3b8}
+.btn{border:0;border-radius:10px;padding:8px 12px;font-weight:700;font-size:13px;cursor:pointer;color:white;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.btn.ghost{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+.btn.small{padding:6px 9px;font-size:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}
+.stat{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:6px 4px;text-align:center}
+.stat b{font-size:15px;display:block;line-height:1.1}.stat span{font-size:10px;color:#94a3b8}
+.progress{height:6px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;margin:6px 0 2px}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#22d3ee);width:0%}
+.card3d{perspective:1200px;margin-top:8px}
+.card{background:#1e293b;color:#f1f5f9;border:1px solid rgba(255,255,255,.12);border-radius:16px;min-height:0;padding:14px 16px;position:relative;box-shadow:0 12px 32px rgba(0,0,0,.35)}
+.qmeta{display:flex;gap:8px;align-items:center;color:#94a3b8;font-size:11px;font-weight:700;letter-spacing:.04em}
+.q{font-size:15.5px;line-height:1.45;margin:8px 0 10px;font-weight:650;color:#f8fafc}
+.opts{display:grid;gap:6px;margin-top:6px}
+@media(min-width:700px){.opts{grid-template-columns:1fr 1fr}.opts .opt:last-child:nth-child(odd){grid-column:1/-1}}
+.opt{border:2px solid rgba(255,255,255,.12);border-radius:10px;padding:8px 10px;cursor:pointer;display:flex;gap:8px;align-items:center;background:rgba(255,255,255,.06);color:#e2e8f0;transition:.15s;font-size:13.5px;line-height:1.35}
+.opt:hover{border-color:var(--accent);background:rgba(99,102,241,.18)}
+.opt .k{width:24px;height:24px;border-radius:7px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px;flex-shrink:0}
+.opt.correct{border-color:var(--good);background:rgba(22,163,74,.22)}
+.opt.wrong{border-color:var(--again);background:rgba(220,38,38,.22)}
+.opt.selected{border-color:var(--accent);background:rgba(99,102,241,.25)}
+.opt.disabled{pointer-events:none;opacity:.95}
+.answer{margin-top:10px;border-radius:10px;padding:10px 12px;background:rgba(0,0,0,.3);border:1px dashed rgba(255,255,255,.2);color:#e2e8f0;display:none}
+.answer.show{display:block}
+.answer .ok{font-weight:800;color:#4ade80;font-size:13.5px}
+.explain{font-size:13px;color:#cbd5e1;margin-top:6px;line-height:1.5}
+.grades{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.g{border:0;border-radius:10px;padding:8px 4px;cursor:pointer;color:#fff;font-weight:800;font-size:13px}
+.g small{display:block;font-weight:600;opacity:.85;font-size:10px}
+.g.again{background:var(--again)}.g.hard{background:var(--hard)}.g.good{background:var(--good)}.g.easy{background:var(--easy)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;position:sticky;bottom:0;padding:6px 0;background:linear-gradient(transparent,rgba(15,23,42,.9) 40%)}
+.hint{font-size:11px;color:#94a3b8;margin-top:8px;line-height:1.4}
+details.how{margin-top:10px;font-size:12px;color:#cbd5e1}
+details.how code{background:rgba(0,0,0,.4);padding:2px 6px;border-radius:6px}
+footer{max-width:1100px;margin:0 auto;padding:0 14px 16px;color:#64748b;font-size:11px}
+@media(max-width:860px){
+.wrap{grid-template-columns:1fr}
+header{padding:8px 12px 2px}
+.sub{display:none}
+#decks{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.deck{min-width:170px;margin-bottom:0;flex-shrink:0}
+.q{font-size:15px}
+.g{font-size:12px;padding:7px 2px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">A</div>
+  <div>
+    <h1>Anki Çalışma Paneli</h1>
+    <p class="sub">SM-2 aralıklı tekrar • klavye: Boşluk = göster, 1-4 = Tekrar/Zor/İyi/Kolay</p>
+  </div>
+</header>
+<div class="wrap">
+  <aside>
+    <div class="panel">
+      <h3>Desteler</h3>
+      <div id="decks"></div>
+      <div class="row">
+        <label class="btn ghost small" style="cursor:pointer">JSON içe aktar<input id="import" type="file" accept=".json" hidden></label>
+        <button class="btn ghost small" id="export">Dışa aktar</button>
+      </div>
+      <details class="how">
+        <summary><b>Yeni ders nasıl eklenir?</b></summary>
+        <p>1) <code>anki_kartlari.json</code> ile aynı formatta bir JSON hazırla:<br><code>[{"id":1,"soru":"...","secenekler":{"A":"..."},"cevap":"B","cevap_text":"...","aciklama":"..."}]</code></p>
+        <p>2) Ya bu sayfadaki <b>JSON içe aktar</b> butonunu kullan (kalıcı kaydedilir), ya da kodda <code>BUILTIN_DECKS</code> listesine yeni deste ekle.</p>
+        <p>3) Haritalı sorularda <code>soru</code> alanına harita notu yazman yeterli.</p>
+      </details>
+    </div>
+    <div class="panel" style="margin-top:14px">
+      <h3>Ayarlar</h3>
+      <div class="row">
+        <button class="btn ghost small" id="modeBtn">Mod: Anki</button>
+        <button class="btn ghost small" id="shuffleBtn">Karıştır</button>
+        <button class="btn ghost small" id="resetBtn">İlerlemeyi sıfırla</button>
+      </div>
+      <div class="hint">İlerleme tarayıcıda (localStorage) saklanır. SM-2: kolaylık faktörü (EF) 2.5 başlar, en az 1.3 olur.</div>
+    </div>
+  </aside>
+  <main>
+    <div class="panel">
+      <div class="row" style="justify-content:space-between">
+        <div id="deckTitle"><b>Coğrafya — 66 Soru</b></div>
+        <div id="counter" style="color:#94a3b8;font-size:13px"></div>
+      </div>
+      <div class="progress"><i id="bar"></i></div>
+      <div class="stats">
+        <div class="stat"><b id="sNew">0</b><span>Yeni</span></div>
+        <div class="stat"><b id="sLearn">0</b><span>Öğrenme</span></div>
+        <div class="stat"><b id="sReview">0</b><span>Tekrar</span></div>
+        <div class="stat"><b id="sDone">0</b><span>Bugün biten</span></div>
+      </div>
+      <div class="card3d"><div class="card" id="card"></div></div>
+      <div class="toolbar" id="toolbar"></div>
+      <div class="hint">Anki matematiği (SM-2): Tekrar=q0 • Zor=q3 • İyi=q4 • Kolay=q5. Yeni kart: İyi→1g, Kolay→4g. Tekrar kart: I(1)=1g, I(2)=6g, I(n)=I(n-1)×EF. EF' = EF+(0.1-(5-q)(0.08+(5-q)0.02)). Zor ×1.2, Kolay ×1.3 bonus.</div>
+    </div>
+  </main>
+</div>
+<footer>Tek dosya • React yok • Vanilla JS + SM-2 • Yeni ders eklenebilir yapı</footer>
+<script>
+// ===== YENİ DERS EKLEME NOKTASI =====
+// Kalıcı çözüm: aynı klasöre decks.json + ders JSON'ları koyup fetch ile de yüklenebilir.
+// Basit çözüm: aşağıdaki listeye yeni deste ekle: {id, title, desc, cards:[...]}
+const BUILTIN_DECKS = [
+  {id:'cografya-66', title:'Coğrafya — 66 Soru', desc:'Önlisans-Ortaöğretim KPSS', cards: [{"id": 1, "soru": "Erzurum ve Batman kentlerinin gün içinde gölge boyunun en kısa olduğu anın aynı olması kentlerin hangi özelliğiyle ilişkilendirilebilir?", "secenekler": {"A": "Doğuda yer almalarıyla", "B": "Boylam derecelerinin aynı olmasıyla", "C": "Yükselti ortalamalarıyla", "D": "Enlemlerinin farklı olmasıyla", "E": "Karasal bölgede olmalarıyla"}, "cevap": "B", "cevap_text": "Boylam derecelerinin aynı olmasıyla", "aciklama": "Gölge boyunun en kısa olduğu an öğle vaktidir. Öğle vaktinin aynı olması yerel saatin aynı olması demektir, bu da aynı boylam üzerinde olduklarını gösterir."}, {"id": 2, "soru": "Aşağıdakilerden hangisi Türkiye'nin göreceli (özel) konumunun bir sonucu olarak ortaya çıkmıştır?", "secenekler": {"A": "Antalya'nın ortalama sıcaklığının Çanakkale'den yüksek olması", "B": "Ağrı'da karın yerde kalma süresinin Eskişehir'den uzun olması", "C": "Sinop'ta gece ile gündüz arasındaki zaman farkının en fazla olması", "D": "Konya'dan geçen paralelin Erzurum'dan geçen paralele göre uzun olması", "E": "Ankara'nın yerel saatinin İstanbul'dan daha ileri olması"}, "cevap": "B", "cevap_text": "Ağrı'da karın yerde kalma süresinin Eskişehir'den uzun olması", "aciklama": "Yükseltiye bağlıdır. Enlem-boylamla açıklanamayan durumlar göreceli konumdur. Diğerleri enlem veya boylama bağlı mutlak konumdur."}, {"id": 3, "soru": "Türkiye'de yeryüzü şekillerinin oluşmasında iç ve dış kuvvetler birlikte etkilidir. Aşağıda verilen yeryüzü şekillerinden hangisinin oluşumunda iç kuvvetler etkili olmuştur?", "secenekler": {"A": "Bafra Deltası", "B": "Gediz Grabeni", "C": "Üç Güzeller Peribacası", "D": "Tortum Gölü", "E": "İnsuyu Mağarası"}, "cevap": "B", "cevap_text": "Gediz Grabeni", "aciklama": "Horst-graben sistemi orojenez (iç kuvvet) ürünüdür. Bafra dış (akarsu), Peribacası dış ağırlıklı (akarsu+rüzgar), Tortum heyelan set, İnsuyu karstik dış kuvvettir."}, {"id": 4, "soru": "Haritadaki numaralı alanlardan hangisinde paleozoik (I. zaman, masif/temel) yaşlı arazilere rastlanmaz?", "secenekler": {"A": "I - Yıldız/Istranca Masifi", "B": "II - Anamur/Taşeli Masifi", "C": "III - Kırşehir Masifi", "D": "IV - Bitlis Masifi", "E": "V - Doğu Karadeniz kıyı kuşağı"}, "cevap": "E", "cevap_text": "V", "aciklama": "I Yıldız, II Taşeli, III Kırşehir, IV Bitlis masif arazidir. V Doğu Karadeniz kıyı kuşağı (Bafra-Çarşamba dahil) III. zamanda şekillenmiştir, masif değildir."}, {"id": 5, "soru": "Aşağıdaki ovalardan hangisi Batı Anadolu Fay Hattı boyunca uzanan çöküntü alanlarından birinde oluşmamıştır?", "secenekler": {"A": "Torbalı", "B": "Bergama", "C": "Akhisar", "D": "Nazilli", "E": "Balat"}, "cevap": "E", "cevap_text": "Balat", "aciklama": "Torbalı, Bergama, Akhisar, Nazilli grabenlere yerleşmiş tektonik ovalardır. Balat, Büyük Menderes'in denize döküldüğü yerde oluşan delta ovasıdır."}, {"id": 6, "soru": "Türkiye'de rüzgar biriktirmesiyle oluşan kara kumullarına aşağıdaki alanlardan hangisinde rastlanmaktadır?", "secenekler": {"A": "Konya - Karapınar", "B": "Erzurum - Pasinler", "C": "Isparta - Eğirdir", "D": "Kastamonu - Küre", "E": "Trabzon - Akçaabat"}, "cevap": "A", "cevap_text": "Konya - Karapınar", "aciklama": "Kara kumulları: Konya-Karapınar, Manisa, Kayseri, Iğdır. En bilineni Karapınar'dır."}, {"id": 7, "soru": "Haritada numaralandırılarak koyu renkle gösterilen alanlardan hangisinde buzulların oluşturduğu yer şekillerine rastlanmaz?", "secenekler": {"A": "I - Ağrı-Tendürek çevresi", "B": "II - Aladağlar-Bolkarlar", "C": "III - İstanbul-Kocaeli-Zonguldak kıyı bandı", "D": "IV - Cilo-Sat Dağları", "E": "V - Doğu Karadeniz Dağları"}, "cevap": "C", "cevap_text": "III", "aciklama": "III alçak kıyı bandıdır, yüksek dağ yoktur, buzullaşma olmaz. Diğerleri 2000 m üzeri yüksek dağlık sahalardır."}, {"id": 8, "soru": "I. Küre, II. Köroğlu, III. Ilgaz, IV. Canik, V. Yıldız. Yukarıda verilen dağlardan hangileri Batı Karadeniz dağları içinde yer almaz?", "secenekler": {"A": "I ve II", "B": "I ve IV", "C": "II ve III", "D": "III ve V", "E": "IV ve V"}, "cevap": "E", "cevap_text": "IV ve V (Canik ve Yıldız)", "aciklama": "Küre, Köroğlu, Ilgaz Batı Karadeniz'dir. Canik Orta Karadeniz, Yıldız Marmara'dır."}, {"id": 9, "soru": "Haritada numaralandırılan alanlardan hangisi akarsu aşındırmasıyla oluşan plato alanlarından biri değildir?", "secenekler": {"A": "I - Erzurum-Kars", "B": "II - Şanlıurfa", "C": "III - Kastamonu-Sinop (Küre çevresi)", "D": "IV - ?", "E": "V - Konya-Cihanbeyli/Haymana"}, "cevap": "C", "cevap_text": "III", "aciklama": "Kastamonu-Sinop arası Küre Dağları'nın olduğu yerdir, plato sahası değildir. Diğerleri plato alanlarına denk gelir."}, {"id": 10, "soru": "Karstik şekillerin meydana geldiği jips (alçı taşı) kayaçları haritadaki alanlardan hangisinde yaygın olarak bulunur?", "secenekler": {"A": "I", "B": "II", "C": "III (Bafra-Çarşamba delta)", "D": "IV (Sivas çevresi)", "E": "V"}, "cevap": "D", "cevap_text": "IV", "aciklama": "Jips: Sivas-Kayseri-Ankara hattında yaygındır. IV Sivas'a denk gelir."}, {"id": 11, "soru": "İzmir'den başlayarak Adana'ya kadar kıyı boyunca yapılan yolculukta aşağıdaki kıyı tiplerinden hangisine rastlanmaz?", "secenekler": {"A": "Dalmaçyalı", "B": "Rialı", "C": "Kalanklı", "D": "Boyuna", "E": "Fiyortlu"}, "cevap": "E", "cevap_text": "Fiyortlu", "aciklama": "Dalmaçya (Teke), Ria (Muğla-Gökova, İstanbul-Çanakkale), Kalanklı (Mersin-Silifke), Boyuna (Antalya-Mersin) görülür. Fiyort buzulların deniz seviyesine inmesiyle oluşur, Türkiye'de hiç görülmez."}, {"id": 12, "soru": "Güneybatıdan eser, Batı Anadolu-Marmara-Boğazlar çevresinde etkili, kışın sıcaklığı artırıp karları eritir, boğazlarda deniz trafiğini aksatır. Bu rüzgar hangisidir?", "secenekler": {"A": "Lodos", "B": "Keşişleme (Samyeli)", "C": "Poyraz", "D": "Kıble", "E": "Karayel"}, "cevap": "A", "cevap_text": "Lodos", "aciklama": "Tanım Lodos'tur. Poyraz/Karayel kuzeyden soğuk eser. Keşişleme güneydoğudan eser."}, {"id": 13, "soru": "Bağıl nem oranı ile bulutluluk oranı arasında bağlantı kurulursa aşağıda verilen merkezlerin hangisinde yıl içinde güneşlenme süresi daha azdır?", "secenekler": {"A": "Mardin", "B": "Şanlıurfa", "C": "Konya", "D": "Bartın", "E": "Kayseri"}, "cevap": "D", "cevap_text": "Bartın", "aciklama": "Karadeniz'de bağıl nem ve bulutluluk yüksek, güneşlenme azdır. Diğerleri iç/güney açık-güneşli yerlerdir."}, {"id": 14, "soru": "Türkiye'de görülen sert karasal iklim ile ilgili: I. Yıllık sıcaklık farkı fazladır. II. Kuzeydoğu Anadolu platolarında görülür. III. Kış yağışlarının büyük bölümü kar şeklindedir. Hangileri doğrudur?", "secenekler": {"A": "Yalnız I", "B": "I ve II", "C": "I ve III", "D": "II ve III", "E": "I, II ve III"}, "cevap": "E", "cevap_text": "I, II ve III", "aciklama": "Üçü de sert karasalın özelliğidir."}, {"id": 15, "soru": "İnsuyu, Beldibi, Karaca, Yarımburgaz mağaralarının bulunduğu iller arasında hangisi yoktur?", "secenekler": {"A": "Antalya", "B": "Burdur", "C": "Çankırı", "D": "İstanbul", "E": "Gümüşhane"}, "cevap": "C", "cevap_text": "Çankırı", "aciklama": "İnsuyu-Burdur, Beldibi/Karayin/Damlataş-Antalya, Karaca-Gümüşhane, Yarımburgaz-İstanbul. Çankırı Tuz Mağarası listede yoktur."}, {"id": 16, "soru": "Aşağıdaki ağaçlardan hangisinin dünyadaki en geniş yayılış alanı Türkiye'de yer alır?", "secenekler": {"A": "Kızılçam", "B": "Ladin", "C": "Meşe", "D": "Sarıçam", "E": "Okaliptüs"}, "cevap": "A", "cevap_text": "Kızılçam", "aciklama": "Türkiye ormanlarında en fazla meşe vardır, ama dünyada en fazla Türkiye'de bulunan ağaç kızılçamdır."}, {"id": 17, "soru": "Kuzey Anadolu ve Kuzeydoğu Anadolu yüksek kesimlerinde saf/karışık orman kurar, iç bölgelere adacıklar halinde ulaşır. Dünya ve Türkiye'deki en güney sınırı Kayseri-Pınarbaşı'dır. Bu ağaç hangisidir?", "secenekler": {"A": "Karaçam", "B": "Kızılçam", "C": "Sarıçam", "D": "Köknar (Göknar)", "E": "Ladin"}, "cevap": "C", "cevap_text": "Sarıçam", "aciklama": "Soğuğu seven Sarıçam; Karadeniz yüksekleri + Sarıkamış + Pınarbaşı güney sınırıdır."}, {"id": 18, "soru": "Akdeniz iklim bölgesinde yaygın: I. Kızılçam, II. Toros Sediri, III. Kocayemiş, IV. Zakkum. Hangileri maki bitki bölgesine aittir?", "secenekler": {"A": "I ve II", "B": "I ve III", "C": "II ve III", "D": "II ve IV", "E": "III ve IV"}, "cevap": "E", "cevap_text": "III ve IV", "aciklama": "Kızılçam ve Toros Sediri asli orman ağacıdır. Kocayemiş, zakkum, zeytin, defne gibi çalılar makidir."}, {"id": 19, "soru": "Karadeniz'de 0-1000 m arası geniş yapraklı ağaçlar bulunur. Hangisi 0-1000 m basamağında görülmez?", "secenekler": {"A": "Kayın", "B": "Kestane", "C": "Gürgen", "D": "Ladin", "E": "Kızılağaç"}, "cevap": "D", "cevap_text": "Ladin", "aciklama": "Ladin iğne yapraklıdır, daha yüksek basamaklardadır. Diğerleri geniş yapraklı 0-1000 m türleridir."}, {"id": 20, "soru": "Türkiye'de bitki çeşitliliğinin fazla olmasının nedenleri: I. Orta kuşakta yer alması, II. Akarsu ağının sık olması, III. Yer şekillerinin çeşitli olması, IV. Doğu Yarı Küre'de yer alması. Hangileridir?", "secenekler": {"A": "I ve II", "B": "I ve III", "C": "II ve III", "D": "II ve IV", "E": "III ve IV"}, "cevap": "B", "cevap_text": "I ve III", "aciklama": "Orta kuşak ve yer şekli çeşitliliği iklimi çeşitlendirir, bitki çeşitlenir. Boylam (Doğu Yarı Küre) ve akarsu sıklığı belirleyici değildir."}, {"id": 21, "soru": "Haritadaki göllerden hangisinin volkanik akıntıların dere yataklarını tıkaması sonucunda oluştuğu söylenebilir?", "secenekler": {"A": "I (Manyas-Ulubat, tektonik)", "B": "II (Beyşehir çevresi, karstik-tektonik)", "C": "III (Büyük-Küçük Çekmece, kıyı set)", "D": "IV (Van Gölü çevresi)", "E": "V (Bolu-Abant-Yedigöller, heyelan)"}, "cevap": "D", "cevap_text": "IV", "aciklama": "Volkanik set gölleri Doğu Anadolu'da (Van çevresi) yaygındır."}, {"id": 22, "soru": "Denize kıyısı olan illerden hangisinin kıyısında körfez sayısı daha fazladır?", "secenekler": {"A": "Hatay (İskenderun)", "B": "Bursa (Gemlik)", "C": "Muğla", "D": "Çanakkale (Saros)", "E": "Aydın (Kuşadası)"}, "cevap": "C", "cevap_text": "Muğla", "aciklama": "Muğla: Güllük, Gökova, Hisarönü, Fethiye körfezleri ile en fazladır."}, {"id": 23, "soru": "Aşağıdaki ovalardan hangisi karşısında verilen ilde yer almaz? Altınbaşak-Şanlıurfa, İnegöl-Bursa, Erbaa-Tokat, Serik-Antalya, Tercan-Erzurum", "secenekler": {"A": "Altınbaşak - Şanlıurfa", "B": "İnegöl - Bursa", "C": "Erbaa - Tokat", "D": "Serik - Antalya", "E": "Tercan - Erzurum"}, "cevap": "E", "cevap_text": "Tercan - Erzurum (yanlış)", "aciklama": "Tercan Erzincan'dadır (Tercan-Mercan-Ercan-Erzincan). Diğer eşleştirmeler doğrudur."}, {"id": 24, "soru": "Havzalarındaki yer şekilleri dikkate alındığında hangisinin birlikte verilen yörede taşkına yol açma olasılığı daha azdır?", "secenekler": {"A": "Asi - Hatay", "B": "Ergene - Edirne", "C": "Yeşilırmak - Samsun", "D": "Karasu - Erzincan", "E": "Gediz - İzmir"}, "cevap": "D", "cevap_text": "Karasu - Erzincan", "aciklama": "Karasu Erzincan'da yüksekte, vadi derin, eğim fazla; taşkın yapmaz. Diğerleri alçak düzlükte denize dökülürken taşkın yapar."}, {"id": 25, "soru": "Haritadaki numaralı yerlerden hangisindeki göller oluşum bakımından heyelan set özelliği gösterir?", "secenekler": {"A": "I", "B": "II", "C": "III (Karadeniz: Sera-Tortum)", "D": "IV", "E": "V (Sapanca-İznik-Manyas-Ulubat)"}, "cevap": "C", "cevap_text": "III", "aciklama": "Heyelan set denince Karadeniz akla gelir (Sera, Tortum). Diğerleri tektonik/volkanik/kıyı settir."}, {"id": 26, "soru": "Tarım ürünlerinin yurt içi talebi karşılama derecesine yeterlilik derecesi denir. 2025 itibarıyla yeterlilik derecesi en yüksek ürün hangisidir?", "secenekler": {"A": "Çeltik (Pirinç)", "B": "Muz", "C": "Çay", "D": "Soya", "E": "Kayısı"}, "cevap": "E", "cevap_text": "Kayısı", "aciklama": "Kayısı %542 yeterlilikle en yüksek; diğerleri dışarıdan alınır (muz, çay, pirinç, soya yetmez)."}, {"id": 27, "soru": "Türkiye'nin dağlarıyla ilgili hangisi doğrudur?", "secenekler": {"A": "Karadeniz ve Akdeniz sıra dağları kırılmayla oluşmuştur", "B": "Güncel buzullar çoğunlukla doğudaki dağlar üzerindedir", "C": "Güneyde çok sayıda volkanik dağ vardır", "D": "Dağ yükseltisi doğudan batıya artar", "E": "Batı Anadolu dağları kıvrımlı antiklinaldir"}, "cevap": "B", "cevap_text": "Güncel buzullar çoğunlukla doğudadır", "aciklama": "Karadeniz-Akdeniz kıvrımdır, volkanikler doğu-iç Anadolu'dadır, yükselti batıdan doğuya artar, Ege kırıklı horst-grabendir. Doğrusu B."}, {"id": 28, "soru": "Kırsalda hem tarım hem hayvancılık yapılan mezralara coğrafi özellikler göz önüne alındığında hangisinde daha çok rastlanır?", "secenekler": {"A": "Ergene Havzası", "B": "Menteşe Yöresi", "C": "Tuz Gölü çevresi", "D": "Taşeli Platosu", "E": "Van Gölü çevresi"}, "cevap": "E", "cevap_text": "Van Gölü çevresi", "aciklama": "Mezra Doğu Anadolu'ya özgüdür (ziraat kökünden)."}, {"id": 29, "soru": "Maki, Bozkır, Çayır, Çiçekli bitkiler-orman ile hayvan türleri arasında hangi ilişki yoktur?", "secenekler": {"A": "Arıcılık", "B": "Koyun", "C": "İpek Böcekçiliği", "D": "Büyükbaş mera", "E": "Kıl keçisi"}, "cevap": "C", "cevap_text": "İpek Böcekçiliği", "aciklama": "Maki-kıl keçisi, bozkır-koyun, çayır-büyükbaş, çiçekli-arı eşleşir. İpek böceği sadece dut yaprağı yer, listede dut yoktur."}, {"id": 30, "soru": "Hangisinde yer altı kaynağının rezervce zengin olduğu yer yanlış verilmiştir?", "secenekler": {"A": "Demir - Malatya (Hekimhan)", "B": "Krom - Muğla (Köyceğiz)", "C": "Volfram - Antalya (Alanya)", "D": "Bakır - Kastamonu (Küre)", "E": "Boksit - Konya (Seydişehir)"}, "cevap": "C", "cevap_text": "Volfram - Antalya (yanlış)", "aciklama": "Volfram Bursa-Uludağ'dadır (kurt-ulur-Uludağ). Alanya'da barit vardır."}, {"id": 31, "soru": "Haritadaki numaralı alanlardan hangisinde nüfus yoğunluğu daha fazladır?", "secenekler": {"A": "I (Kastamonu-Küre)", "B": "II (Tuz Gölü çevresi)", "C": "III (Gaziantep-Şanlıurfa merkezi)", "D": "IV (Hakkari)", "E": "V (Teke-Batı Toros)"}, "cevap": "C", "cevap_text": "III", "aciklama": "III Gaziantep-Şanlıurfa merkezleri sıktır. Diğerleri seyrek nüfusludur."}, {"id": 32, "soru": "2025 TÜİK'e göre nüfusu en çok olan beş ilden biri değildir?", "secenekler": {"A": "İstanbul", "B": "Ankara", "C": "İzmir", "D": "Konya", "E": "Antalya"}, "cevap": "D", "cevap_text": "Konya", "aciklama": "İlk 5: İstanbul, Ankara, İzmir, Bursa, Antalya. Konya 6'dan sonradır."}, {"id": 33, "soru": "Nüfusun tarihsel gelişimi ve sayımlara göre hangisi yanlıştır?", "secenekler": {"A": "En fazla artış 1955-1960 arasındadır", "B": "En düşük artış 2023'tedir", "C": "İlk sayım 1927'dedir", "D": "1985'ten sonra kentsel nüfus kırsaldan fazladır", "E": "Erkek nüfus oranı daima kadından fazla olmuştur"}, "cevap": "E", "cevap_text": "Erkek daima fazladır (yanlış)", "aciklama": "1927 ve 1935'te savaşlar nedeniyle kadın fazlaydı. Diğerleri doğrudur (en yüksek binde 28 1955-60, en düşük binde 1.1 2023)."}, {"id": 34, "soru": "Tütün sulamayla yetiştirilen sanayi bitkisidir, Orta Anadolu'da tarımı yapılmaz. Hangisinde tütün tarımı söylenemez?", "secenekler": {"A": "Manisa", "B": "Denizli", "C": "Aksaray", "D": "Uşak", "E": "Adıyaman"}, "cevap": "C", "cevap_text": "Aksaray", "aciklama": "İç Anadolu bozkır toprağını sevmez, kalite düşer, ekime izin verilmez. Diğerleri Ege/Güneydoğu tütün alanlarıdır."}, {"id": 35, "soru": "Haritadaki numaralı alanlardan hangisinde eşleştirilen maden yanlıştır?", "secenekler": {"A": "I - Bakır (Kastamonu-Küre)", "B": "II - Boksit (Antalya-Akseki)", "C": "III - Krom (Kop Dağı)", "D": "IV - Volfram (Mardin-Mazıdagı çevresi)", "E": "V - Mermer (Balıkesir-Marmara)"}, "cevap": "D", "cevap_text": "IV - Volfram (yanlış)", "aciklama": "Volfram Uludağ'dadır. IV Mardin-Mazıdağı fosfattır."}, {"id": 36, "soru": "Yaz ve sonbaharda kuraklık isteyen ürünün hangilerinde doğal koşullarda yetişmesi zordur? I. Konya Ovası, II. Erzurum-Kars, III. Ergene, IV. Sinop", "secenekler": {"A": "I ve II", "B": "I ve III", "C": "II ve III", "D": "II ve IV", "E": "III ve IV"}, "cevap": "D", "cevap_text": "II ve IV", "aciklama": "Erzurum-Kars ve Sinop yazları serin-yağışlıdır, kuraklık isteyen ürün yetişmez."}, {"id": 37, "soru": "Hangisinde doğal bal ve bal mumu üretimi toplamı daha azdır?", "secenekler": {"A": "Adana", "B": "Muğla", "C": "Ordu", "D": "Kilis", "E": "Sivas"}, "cevap": "D", "cevap_text": "Kilis", "aciklama": "Ordu, Muğla, Adana, Sivas arıcılıkta öndedir. Kilis düz, bitki çeşidi az, arıcılık yoktur."}, {"id": 38, "soru": "Buna göre hangisinde yetiştirilen üzümde verimlilik ekonomik değer taşıyacak ölçüde değildir?", "secenekler": {"A": "Manisa", "B": "Mardin", "C": "Denizli", "D": "Mersin", "E": "Artvin"}, "cevap": "E", "cevap_text": "Artvin", "aciklama": "Üzüm olgunlaşmak için bol güneş ister (üzüm üzüme baka baka kararır). Artvin güneşsiz-kapalıdır."}, {"id": 39, "soru": "Toprağı işleme süresi uzun, yılda iki ürün, ürün çeşidi ve değeri yüksek. Bu özellikler hangi ovaya aittir?", "secenekler": {"A": "Bafra", "B": "Çukurova", "C": "Develi", "D": "Karacabey", "E": "Ergene"}, "cevap": "B", "cevap_text": "Çukurova", "aciklama": "Güneyde sıcak, yılda iki ürün ve çeşitli ürün (turunçgil vb.) sadece Çukurova'da olur."}, {"id": 40, "soru": "Haritada numaralı alanların toprakları: I. Yıkanmış kül rengi verimsiz, II. Kahverengi verimli, III. Çayır altında koyu verimli, IV. Tuz-kireçli az yıkanmış, V. Kırmızı demirli. Hangisi yanlıştır?", "secenekler": {"A": "I", "B": "II", "C": "III", "D": "IV", "E": "V"}, "cevap": "E", "cevap_text": "V (yanlış)", "aciklama": "V Çukurova'yı işaretler, orası alüvyaldir. Terra-rossa (kırmızı demirli) değildir."}, {"id": 41, "soru": "İklim-toprak dikkate alındığında karşısında eşleştirilen ürünün yanlış olduğu söylenebilir?", "secenekler": {"A": "Batman - Pamuk", "B": "Iğdır - Kayısı", "C": "Konya - Mısır", "D": "Bursa - İncir", "E": "Aksaray - Tütün"}, "cevap": "E", "cevap_text": "Aksaray - Tütün (yanlış)", "aciklama": "İç Anadolu'da tütün olmaz. Diğerleri doğrudur (sulamayla pamuk-mısır olur)."}, {"id": 42, "soru": "I. Diyarbakır-Et/süt, II. İzmir-Petrokimya, III. Kastamonu-Orman ürünleri, IV. Kayseri-Pamuklu dokuma. Hangileri ham madde bakımından zengindir?", "secenekler": {"A": "I ve II", "B": "I ve III", "C": "II ve III", "D": "II ve IV", "E": "III ve IV"}, "cevap": "B", "cevap_text": "I ve III", "aciklama": "Diyarbakır büyükbaş, Kastamonu orman hammaddesine sahiptir. İzmir petrolü limanla (ulaşım), Kayseri pamuğu taşımayla getirir."}, {"id": 43, "soru": "Pamuk bozulmadığı için dokuma ham madde dışı da kurulabilir. Hangisinde pamuklu dokuma olması bunu destekler?", "secenekler": {"A": "Denizli", "B": "İstanbul", "C": "Adana", "D": "Şanlıurfa", "E": "Aydın"}, "cevap": "B", "cevap_text": "İstanbul", "aciklama": "İstanbul'da pamuk üretilmez ama dokuma vardır (Kayseri de böyledir). Diğerlerinde pamuk üretilir."}, {"id": 44, "soru": "Hangisinin gelişmesinde ağır demir-çelik sanayisi etkili olmuştur?", "secenekler": {"A": "Trabzon", "B": "Mersin", "C": "Antalya", "D": "Gemlik", "E": "İskenderun"}, "cevap": "E", "cevap_text": "İskenderun", "aciklama": "İskenderun Demir-Çelik limanı büyütmüştür. Trabzon-transit, Mersin-serbest bölge, Antalya-krom, Gemlik-otomotivdir."}, {"id": 45, "soru": "Aşağıda verilen tarım-hayvancılık birlikteliklerinden hangisinin bir arada bulunması daha zordur?", "secenekler": {"A": "Zeytin - Kıl keçisi", "B": "Arpa - Koyun", "C": "Fındık - Arıcılık", "D": "Pamuk - Büyükbaş mera", "E": "Mısır - Kümes"}, "cevap": "D", "cevap_text": "Pamuk - Büyükbaş mera", "aciklama": "Büyükbaş mera (Erzurum-Kars, Doğu Karadeniz) serin-yağışlıdır, pamuk sıcağı sever; bir arada olmaz."}, {"id": 46, "soru": "Tarlaların nadasa bırakıldığı alanlarda erozyon artar. Haritada hangisinde erozyon daha fazla yaşanır?", "secenekler": {"A": "I", "B": "II", "C": "III", "D": "IV (İç Anadolu)", "E": "V"}, "cevap": "D", "cevap_text": "IV", "aciklama": "Nadas İç Anadolu'da yaygındır, toprak çıplak kalır, erozyon artar."}, {"id": 47, "soru": "Hangisinde linyitle çalışan termik santral yoktur?", "secenekler": {"A": "Kemerköy - Muğla", "B": "Orhaneli - Bursa", "C": "Çayırhan - Ankara", "D": "Silopi - Şırnak", "E": "Tavşanlı - Kütahya"}, "cevap": "D", "cevap_text": "Silopi - Şırnak", "aciklama": "Silopi asfaltitle çalışır. Diğerleri linyitlidir (Yatağan-Kemerköy, Orhaneli, Çayırhan, Tunçbilek-Seyitömer)."}, {"id": 48, "soru": "Türkiye dış ticaretiyle ilgili hangisi yanlıştır?", "secenekler": {"A": "Dış satımda en büyük pay motorlu kara taşıtları", "B": "Endüstri ürünleri dış alımda önemli paya sahiptir", "C": "Bazı ürünlerin rekabet gücü artmaktadır", "D": "Dış satımda Almanya, İngiltere, ABD payı fazladır", "E": "Dış satım gelirleri dış alım giderlerini karşılamaktadır"}, "cevap": "E", "cevap_text": "Dış satım karşılar (yanlış)", "aciklama": "Türkiye 1940'lardan beri dış ticaret açığı verir; petrol-doğalgaz ithalatı nedeniyle satım alımı karşılamaz."}, {"id": 49, "soru": "I. Sugözü (Adana)-Taşkömürü, II. İskenderun-Taşkömürü, III. Çan-Doğalgaz, IV. Elbistan-Doğalgaz. Hangilerinin yakıt türü yanlış verilmiştir?", "secenekler": {"A": "I ve II", "B": "I ve III", "C": "II ve III", "D": "II ve IV", "E": "III ve IV"}, "cevap": "E", "cevap_text": "III ve IV", "aciklama": "Sugözü ve İskenderun ithal taşkömürüdür (doğru). Çan ve Elbistan linyitlidir, doğalgaz yanlıştır."}, {"id": 50, "soru": "Denize kıyısı olup il merkezi deniz kıyısında olmayan illere hangisi örnek değildir?", "secenekler": {"A": "Samsun", "B": "Adana", "C": "Aydın", "D": "Bursa", "E": "Kastamonu"}, "cevap": "A", "cevap_text": "Samsun", "aciklama": "Samsun merkez kıyıdadır. Adana, Aydın, Bursa, Kastamonu'nun merkezi içeride, ilçeleri kıyıdadır."}, {"id": 51, "soru": "Hangisinde il o ilde bulunmayan sanayi kolu ile eşleştirilmiştir?", "secenekler": {"A": "Kütahya - Seramik", "B": "Trabzon - Şeker", "C": "Antalya - Krom (ferrokrom)", "D": "Diyarbakır - Et", "E": "Sakarya - Otomotiv"}, "cevap": "B", "cevap_text": "Trabzon - Şeker (yanlış)", "aciklama": "Doğu Karadeniz ve Güneydoğu'da şeker fabrikası yoktur (pancar yok). Diğerleri doğrudur."}, {"id": 52, "soru": "Cumhuriyet ilk sayımından günümüze: I. Artış hızı aynı oranda, II. Toplam nüfus hep arttı, III. Artış hızı bölgelere göre değişti, IV. Kırsal artış doğal artıştır. Hangilerinin doğru olduğu söylenemez?", "secenekler": {"A": "Yalnız I", "B": "I ve II", "C": "II ve III", "D": "II ve IV", "E": "II, III ve IV"}, "cevap": "A", "cevap_text": "Yalnız I", "aciklama": "I yanlıştır (hız değişir). II, III, IV doğrudur (nüfus hiç azalmadı, bölgesel fark var, kırsal doğal artar)."}, {"id": 53, "soru": "Karadeniz en büyük açık havza, en fazla tatlı su karışan denizdir. Hangisi Karadeniz'e dökülenlerden biri değildir?", "secenekler": {"A": "Çoruh Nehri", "B": "Fırtına Deresi", "C": "Yeşilırmak", "D": "Filyos Çayı", "E": "Eşen Çayı"}, "cevap": "E", "cevap_text": "Eşen Çayı", "aciklama": "Eşen Akdeniz'e dökülür (Antalya-Muğla). Diğerleri Karadeniz'e dökülür."}, {"id": 54, "soru": "Haritadaki numaralı alanlardan hangisinde rüzgar gücünden elektrik üretilmektedir?", "secenekler": {"A": "I (Çanakkale-Balıkesir-İzmir)", "B": "II", "C": "III", "D": "IV", "E": "V (Konya-Karapınar)"}, "cevap": "A", "cevap_text": "I", "aciklama": "Rüzgar Marmara-Ege'dedir (Çeşme-Alaçatı'da başladı, Çanakkale-Balıkesir en fazla). Konya güneş, Zonguldak taşkömürüdür."}, {"id": 55, "soru": "Kıyıya paralel dağların denize dönük yamaçlarından hangisi yanlış verilmiştir?", "secenekler": {"A": "Bey Dağları - Doğu", "B": "Amanos - Batı", "C": "Yıldız - Kuzey", "D": "Giresun - Batı", "E": "Bolkar - Güney"}, "cevap": "D", "cevap_text": "Giresun - Batı (yanlış)", "aciklama": "Giresun'un denize dönük yamacı kuzeydir. Diğerleri doğrudur."}, {"id": 56, "soru": "İran ve ardı ülkelere demir yolu ulaşımı yapılan Kapıköy Sınır Kapısı hangisindedir?", "secenekler": {"A": "Ağrı", "B": "Van", "C": "Hakkari", "D": "Iğdır", "E": "Ardahan"}, "cevap": "B", "cevap_text": "Van", "aciklama": "Tatvan-Van tren-feribot hattı sonrası Kapıköy-Van İran demiryolu kapısıdır."}, {"id": 57, "soru": "Mobilya sanayisiyle öne çıkan merkez hangisidir?", "secenekler": {"A": "Alaşehir (Manisa)", "B": "İnegöl (Bursa)", "C": "Bozüyük (Bilecik)", "D": "Gebze (Kocaeli)", "E": "Polatlı (Ankara)"}, "cevap": "B", "cevap_text": "İnegöl (Bursa)", "aciklama": "İnegöl köfte+mobilyayla bilinir. Bozüyük-Söğüt seramik, Alaşehir jeotermal-tarımdır."}, {"id": 58, "soru": "I. Antalya, II. Hatay, III. Aydın, IV. Mersin. Hangilerinde hem orman yangını hem deprem riski yüksektir?", "secenekler": {"A": "I ve II", "B": "I ve III", "C": "II ve III", "D": "II ve IV", "E": "III ve IV"}, "cevap": "C", "cevap_text": "II ve III (Hatay-Aydın)", "aciklama": "Antalya'da deprem düşük, Mersin'de (Taşeli masif) deprem düşük. Hatay+Aydın'da ikisi de yüksek."}, {"id": 59, "soru": "Karadeniz'de su kaynaklarının bol, yer şekillerinin engebeli olması hangisi üzerinde etkili olmuştur?", "secenekler": {"A": "Dağınık yerleşmelerin görülmesi", "B": "Yer altı kaynaklarının oluşması", "C": "Balık miktarının fazla olması", "D": "Yaz kuraklığının olmaması", "E": "Deniz turizminin geri kalması"}, "cevap": "A", "cevap_text": "Dağınık yerleşmeler", "aciklama": "Engebe evleri dağıtır, bol su toplanma zorunluluğunu kaldırır."}, {"id": 60, "soru": "6330 sayılı yasayla 30 büyükşehir oluştu. Hangisi büyükşehir olanlardan biri değildir?", "secenekler": {"A": "Erzurum", "B": "Ordu", "C": "Malatya", "D": "Çanakkale", "E": "Balıkesir"}, "cevap": "D", "cevap_text": "Çanakkale", "aciklama": "Çanakkale 750 bin üstü büyükşehir değildir. Diğerleri büyükşehirdir."}, {"id": 61, "soru": "Türkiye hangisine üye değildir?", "secenekler": {"A": "BM", "B": "NATO", "C": "AB", "D": "AGİT", "E": "KEİ"}, "cevap": "C", "cevap_text": "AB", "aciklama": "BM kurucu, NATO üye, AGİT üye, KEİ (1992 İstanbul) kurucu. AB'ye aday, üye değil."}, {"id": 62, "soru": "2009'da ilk hızlı tren seferleri başladı. Hangisine hızlı trenle ulaşım söylenemez?", "secenekler": {"A": "Mersin", "B": "Eskişehir", "C": "Sivas", "D": "Konya", "E": "Karaman"}, "cevap": "A", "cevap_text": "Mersin", "aciklama": "Ankara-Eskişehir, Ankara-Sivas, Ankara-Konya-Karaman var. Mersin'e (henüz yapım aşamasında) yok."}, {"id": 63, "soru": "Haritada Batman, Kırıkkale, Kocaeli, Mersin tesisleri gösterilen sanayi kuruluşu hangisidir?", "secenekler": {"A": "Şeker", "B": "Suni gübre", "C": "Petro-Kimya", "D": "Mobilya", "E": "Ferro-Krom"}, "cevap": "C", "cevap_text": "Petro-Kimya", "aciklama": "Batman petrolü ele verir. Aliağa-Star, İpraş, Ataş, Kırıkkale petro-kimyadır."}, {"id": 64, "soru": "Bölgesel kalkınma projesi-il eşleştirmelerinden hangisi yanlıştır?", "secenekler": {"A": "KOP - Yozgat", "B": "GAP - Bitlis", "C": "DOKAP - Gümüşhane", "D": "DAP - Erzincan", "E": "YHGP - Çorum"}, "cevap": "B", "cevap_text": "GAP - Bitlis (yanlış)", "aciklama": "Bitlis DAP'tadır. Yozgat KOP'a sonradan eklendi. Çorum YHGP (Saç-Toka: Samsun-Amasya-Çorum-Tokat)."}, {"id": 65, "soru": "UNESCO haritası: I-Safranbolu, II-Ani, III-Cumalıkızık, IV-Aslantepe, V-Çatalhöyük. Hangisi yanlıştır?", "secenekler": {"A": "I - Safranbolu Evleri", "B": "II - Ani Harabeleri", "C": "III - Cumalıkızık", "D": "IV - Aslantepe Höyüğü", "E": "V - Çatalhöyük"}, "cevap": "B", "cevap_text": "II - Ani (yanlış konum)", "aciklama": "Ani Kars'tadır, haritada II Van gösterilmiş. Diğerleri doğru (Safranbolu-Karabük, Cumalıkızık-Bursa, Aslantepe-Malatya, Çatalhöyük-Konya)."}, {"id": 66, "soru": "Hangisi Marmara Denizi'nde bulunan adalardan biri değildir?", "secenekler": {"A": "Kınalı Ada", "B": "Burgaz Ada", "C": "Büyük Ada", "D": "Bozcaada", "E": "Heybeli Ada"}, "cevap": "D", "cevap_text": "Bozcaada", "aciklama": "Kınalı-Burgaz-Büyük-Heybeli (+Yassı, İmralı, Sedef) Marmara'dadır. Bozcaada/Gökçeada/Cunda Ege'dedir."}]}
+];
+// ===== SM-2 (Anki) MATEMATİĞİ =====
+// q: 0=Təkrar,3=Zor,4=İyi,5=Kolay. minutes helper.
+const MIN=60*1000, DAY=24*60*MIN;
+const LEARN_STEPS=[1*MIN,10*MIN];
+function efNext(ef,q){let n=ef+(0.1-(5-q)*(0.08+(5-q)*0.02));return Math.max(1.3,Math.round(n*100)/100);}
+function fmt(d){if(d<60*MIN)return Math.round(d/MIN)+'dk';if(d<24*60*MIN)return Math.round(d/(60*MIN))+'sa';const g=Math.round(d/DAY);return g+'g';}
+function previews(st){
+  const iv=st.interval||0, reps=st.reps||0, ef=st.ef||2.5;
+  let base=reps===0?1*DAY:(reps===1?6*DAY:Math.round(iv*ef));
+  return {again:LEARN_STEPS[0], hard:reps<2?fmt(LEARN_STEPS[1]):fmt(Math.max(1*DAY,Math.round(base*1.2))), good:reps<2?(reps===0?fmt(1*DAY):fmt(6*DAY)):fmt(base), easy:reps===0?fmt(4*DAY):fmt(Math.round(base*1.3)+1*DAY)};
+}
+let store={}; try{store=JSON.parse(localStorage.getItem('anki-sm2-v1')||'{}')}catch(e){store={}};
+function save(){localStorage.setItem('anki-sm2-v1',JSON.stringify(store));}
+function stOf(deck, id){const k=deck+'::'+id; if(!store[k]) store[k]={ef:2.5,interval:0,reps:0,lapses:0,due:0,status:'new',step:0}; return store[k];}
+function grade(deck,card,q){
+  const s=stOf(deck,card.id), now=Date.now();
+  if(q<3){s.lapses=(s.lapses||0)+1; s.reps=0; s.interval=0; s.status='learning'; s.step=0; s.due=now+LEARN_STEPS[0]; s.ef=efNext(s.ef,0);}
+  else{
+    s.ef=efNext(s.ef,q);
+    if(s.status==='new'||s.status==='learning'){
+      if(q===5){s.status='review';s.reps=1;s.interval=4*DAY;s.due=now+4*DAY;}
+      else if(q===4){if((s.step||0)>=1){s.status='review';s.reps=1;s.interval=1*DAY;s.due=now+1*DAY;}else{s.step=(s.step||0)+1;s.status='learning';s.due=now+LEARN_STEPS[1];}}
+      else if(q===3){s.step=Math.max(0,(s.step||0));s.status='learning';s.due=now+LEARN_STEPS[1];}
+    } else {
+      s.reps=(s.reps||0)+1;
+      let base=s.reps===1?1*DAY:(s.reps===2?6*DAY:Math.round(s.interval*s.ef));
+      if(q===3) base=Math.max(1*DAY,Math.round(base*1.2));
+      if(q===5) base=Math.round(base*1.3)+1*DAY;
+      s.interval=base; s.due=now+base;
+    }
+  }
+  save();
+}
+// ===== UYGULAMA =====
+let customDecks=[]; try{customDecks=JSON.parse(localStorage.getItem('anki-custom-decks')||'[]')}catch(e){}
+let allDecks=[...BUILTIN_DECKS, ...customDecks];
+let cur={deck:allDecks[0].id, idx:0, order:[], revealed:false, picked:null, mode:'anki', shuffled:false};
+const UI_KEY='anki-ui-v1';
+function saveUI(){try{localStorage.setItem(UI_KEY,JSON.stringify({deck:cur.deck,idx:cur.idx,order:cur.order,mode:cur.mode,shuffled:cur.shuffled}));}catch(e){}}
+function loadUI(){
+  try{
+    const u=JSON.parse(localStorage.getItem(UI_KEY)||'null');
+    if(!u) return false;
+    const d=allDecks.find(x=>x.id===u.deck);
+    if(!d) return false;
+    if(!Array.isArray(u.order)||u.order.length!==d.cards.length) return false;
+    cur.deck=u.deck; cur.order=u.order; cur.idx=Math.min(u.idx||0,d.cards.length-1);
+    cur.mode=(u.mode==='test')?'test':'anki'; cur.shuffled=!!u.shuffled;
+    cur.revealed=false; cur.picked=null;
+    return true;
+  }catch(e){return false;}
+}
+function deckObj(){return allDecks.find(d=>d.id===cur.deck);}
+function buildOrder(){
+  const d=deckObj(), now=Date.now();
+  let arr=d.cards.map((c,i)=>({c,i,due:stOf(d.id,c.id).due||0,status:stOf(d.id,c.id).status}));
+  arr.sort((a,b)=>a.due-b.due);
+  cur.order=arr.map(x=>x.i);
+  if(cur.shuffled){for(let i=cur.order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cur.order[i],cur.order[j]]=[cur.order[j],cur.order[i]];}}
+  cur.idx=0; cur.revealed=false; cur.picked=null;
+}
+function stats(){
+  const d=deckObj(), now=Date.now(); let n=0,l=0,r=0,done=0;
+  d.cards.forEach(c=>{const s=stOf(d.id,c.id); if(s.status==='new')n++; else if(s.status==='learning')l++; else r++; if(s.due&&s.due>now+DAY)done++;});
+  document.getElementById('sNew').textContent=n;
+  document.getElementById('sLearn').textContent=l;
+  document.getElementById('sReview').textContent=r;
+  document.getElementById('sDone').textContent=done;
+  document.getElementById('bar').style.width=Math.round(cur.idx/Math.max(1,cur.order.length)*100)+'%';
+  document.getElementById('counter').textContent=(cur.idx+1)+' / '+cur.order.length;
+}
+function renderDecks(){
+  const el=document.getElementById('decks'); el.innerHTML='';
+  allDecks.forEach(d=>{const b=document.createElement('button');b.className='deck'+(d.id===cur.deck?' active':'');b.innerHTML='<b>'+d.title+'</b><span>'+d.cards.length+' kart • '+d.desc+'</span>';b.onclick=()=>{cur.deck=d.id;buildOrder();saveUI();render();};el.appendChild(b);});
+  document.getElementById('deckTitle').innerHTML='<b>'+deckObj().title+'</b> <span style="color:#94a3b8">• '+deckObj().desc+'</span>';
+}
+function render(){
+  renderDecks(); stats();
+  const mb=document.getElementById('modeBtn'); if(mb) mb.textContent='Mod: '+(cur.mode==='anki'?'Anki':'Test');
+  const sh=document.getElementById('shuffleBtn'); if(sh) sh.textContent=cur.shuffled?'Karışık: Açık':'Karıştır';
+  saveUI();
+  const d=deckObj(), card=d.cards[cur.order[cur.idx]], s=stOf(d.id,card.id);
+  const box=document.getElementById('card'), tb=document.getElementById('toolbar');
+  const keys=Object.keys(card.secenekler||{});
+  let opts=keys.map(k=>'<div class="opt" data-k="'+k+'"><span class="k">'+k+'</span><span>'+card.secenekler[k]+'</span></div>').join('');
+  box.innerHTML='<div class="qmeta"><span>KART #'+card.id+'</span><span>•</span><span>EF '+s.ef.toFixed(2)+' • tekrar '+s.reps+' • '+(s.status==='new'?'yeni':s.status)+'</span></div><div class="q">'+card.soru+'</div><div class="opts">'+opts+'</div><div class="answer" id="ans"><div class="ok">Doğru: '+card.cevap+') '+card.cevap_text+'</div><div class="explain">'+card.aciklama+'</div></div>';
+  tb.innerHTML='';
+  const showBtn=document.createElement('button');showBtn.className='btn';showBtn.textContent=cur.revealed?'Cevabı Gizle':'Cevabı Göster (Boşluk)';showBtn.onclick=()=>{cur.revealed=!cur.revealed;render();};
+  const nextBtn=document.createElement('button');nextBtn.className='btn ghost';nextBtn.textContent='Sonraki →';nextBtn.onclick=next;
+  if(cur.mode==='test'){
+    box.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{
+      if(cur.picked)return; cur.picked=o.dataset.k; cur.revealed=true;
+      box.querySelectorAll('.opt').forEach(x=>{x.classList.add('disabled'); if(x.dataset.k===card.cevap)x.classList.add('correct');});
+      if(cur.picked!==card.cevap) box.querySelector('[data-k="'+cur.picked+'"]').classList.add('wrong');
+      document.getElementById('ans').classList.add('show');
+      grade(d.id,card,cur.picked===card.cevap?4:0); stats(); renderGradesPreview();
+    });
+    if(cur.revealed) {box.querySelectorAll('.opt').forEach(x=>{x.classList.add('disabled'); if(x.dataset.k===card.cevap)x.classList.add('correct');}); if(cur.picked&&cur.picked!==card.cevap){const el=box.querySelector('[data-k="'+cur.picked+'"]'); if(el)el.classList.add('wrong');} document.getElementById('ans').classList.add('show');}
+    tb.append(nextBtn);
+  } else {
+    // ANKI MODU: şıkka tıkla -> cevabı hemen göster
+    box.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{
+      if(cur.revealed) return;
+      cur.picked=o.dataset.k;
+      cur.revealed=true;
+      render();
+    });
+    if(!cur.revealed){tb.append(showBtn);tb.append(nextBtn);}
+    else{
+      box.querySelectorAll('.opt').forEach(x=>{
+        x.style.pointerEvents='none';
+        if(x.dataset.k===card.cevap) x.classList.add('correct');
+      });
+      if(cur.picked && cur.picked!==card.cevap){
+        const el=box.querySelector('[data-k="'+cur.picked+'"]');
+        if(el) el.classList.add('wrong');
+      }
+      document.getElementById('ans').classList.add('show');
+      const pv=previews(s);
+      const defs=[['again','Tekrar',fmt(pv.again),0],['hard','Zor',typeof pv.hard==='number'?fmt(pv.hard):pv.hard,3],['good','İyi',typeof pv.good==='number'?fmt(pv.good):pv.good,4],['easy','Kolay',typeof pv.easy==='number'?fmt(pv.easy):pv.easy,5]];
+      const g=document.createElement('div');g.className='grades';g.style.width='100%';
+      defs.forEach(([cls,label,when,q])=>{const b=document.createElement('button');b.className='g '+cls;b.innerHTML=label+'<small>'+when+'</small>';b.onclick=()=>{grade(d.id,card,q);next();};g.appendChild(b);});
+      tb.appendChild(g);
+      const skip=document.createElement('button');skip.className='btn ghost small';skip.textContent='Pas geç →';skip.onclick=next;tb.appendChild(skip);
+    }
+  }
+  function renderGradesPreview(){}
+}
+function next(){const d=deckObj(); if(cur.idx<cur.order.length-1){cur.idx++;}else{buildOrder();} cur.revealed=false;cur.picked=null;saveUI();render();}
+document.getElementById('modeBtn').onclick=e=>{cur.mode=cur.mode==='anki'?'test':'anki';saveUI();render();};
+document.getElementById('shuffleBtn').onclick=()=>{cur.shuffled=!cur.shuffled;buildOrder();saveUI();render();};
+document.getElementById('resetBtn').onclick=()=>{if(!confirm('Bu deste ilerlemesi silinsin mi?'))return;const d=deckObj();d.cards.forEach(c=>delete store[d.id+'::'+c.id]);save();if(!loadUI()) buildOrder();render();};
+document.getElementById('export').onclick=()=>{const blob=new Blob([JSON.stringify(deckObj().cards,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=deckObj().id+'.json';a.click();};
+document.getElementById('import').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const arr=JSON.parse(r.result);if(!Array.isArray(arr))throw 0;const nd={id:'custom-'+Date.now(),title:f.name.replace('.json',''),desc:'İçe aktarıldı',cards:arr};customDecks.push(nd);localStorage.setItem('anki-custom-decks',JSON.stringify(customDecks));allDecks=[...BUILTIN_DECKS,...customDecks];cur.deck=nd.id;if(!loadUI()) buildOrder();render();}catch(err){alert('Geçersiz JSON');}};r.readAsText(f);};
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'){e.preventDefault();cur.revealed=!cur.revealed;render();}
+  if(cur.revealed&&cur.mode==='anki'){const d=deckObj(),card=d.cards[cur.order[cur.idx]];
+    if(e.key==='1'){grade(d.id,card,0);next();} if(e.key==='2'){grade(d.id,card,3);next();}
+    if(e.key==='3'){grade(d.id,card,4);next();} if(e.key==='4'){grade(d.id,card,5);next();}}
+  if(e.key==='ArrowRight')next();
+});
+// harici decks.json desteği (opsiyonel, http ile serve edilirse)
+fetch('decks.json').then(r=>r.json()).then(async m=>{
+  for(const e of m){try{const j=await (await fetch(e.file)).json(); if(!allDecks.find(d=>d.id===e.id)) allDecks.push({id:e.id,title:e.title,desc:e.desc||'',cards:j});}catch(_){}}
+  render();
+}).catch(()=>{});
+if(!loadUI()) buildOrder();render();
+</script>
+</body>
+</html>
