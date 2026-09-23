@@ -118,8 +118,8 @@
       "A": "I - Erzurum-Kars",
       "B": "II - Şanlıurfa",
       "C": "III - Kastamonu-Sinop (Küre çevresi)",
-      "D": "IV - ?",
-      "E": "V - Konya-Cihanbeyli/Haymana"
+      "D": "IV",
+      "E": "V - Konya (Cihanbeyli çevresi)"
     },
     "cevap": "C",
     "cevap_text": "III",
@@ -309,7 +309,7 @@
   },
   {
     "id": 23,
-    "soru": "Aşağıdaki ovalardan hangisi karşısında verilen ilde yer almaz? Altınbaşak-Şanlıurfa, İnegöl-Bursa, Erbaa-Tokat, Serik-Antalya, Tercan-Erzurum",
+    "soru": "Aşağıdaki ovalardan hangisi karşısında verilen ilde yer almaz?",
     "secenekler": {
       "A": "Altınbaşak - Şanlıurfa",
       "B": "İnegöl - Bursa",
@@ -767,7 +767,7 @@
     },
     "cevap": "D",
     "cevap_text": "Giresun - Batı (yanlış)",
-    "aciklama": "Giresun'un denize dönük yamacı kuzeydir. Diğerleri doğrudur."
+    "aciklama": "Giresun Dağları doğu-batı uzanır, denize dönük yamacı kuzeydir; Batı olamaz. Cevap D."
   },
   {
     "id": 56,
