@@ -10,4 +10,4 @@ Sorular ilgili hocalara aittir; her destenin sahibi ve kaynakları kart ekranın
 
 ## Lisans
 
-MIT — ayrıntı için `LICENSE` dosyasına bakın.
+MIT — ayrıntı için [LICENSE](./LICENSE) dosyasına bakın.
